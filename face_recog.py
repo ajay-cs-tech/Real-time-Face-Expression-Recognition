@@ -6,13 +6,20 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.preprocessing import image
 import tensorflow as tf
 
-# Step 1: Face Detection Using OpenCV
+import matplotlib.pyplot as plt
+import glob 
+import os
+import random
+%matplotlib inline
+import warnings 
+warnings.filterwarnings('ignore')
+
+
 def detect_faces(frame, face_cascade):
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
     return faces, gray
 
-# Step 2: CNN Model for Expression Detection
 def create_model():
     model = Sequential()
     
@@ -32,7 +39,6 @@ def create_model():
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     return model
 
-# Step 3: Data Preparation and Model Training
 def train_model(model):
     train_datagen = ImageDataGenerator(rescale=1./255, rotation_range=30, shear_range=0.2, zoom_range=0.2, horizontal_flip=True)
     validation_datagen = ImageDataGenerator(rescale=1./255)
@@ -45,7 +51,6 @@ def train_model(model):
     model.fit(train_generator, validation_data=validation_generator, epochs=25)
     model.save('expression_model.h5')
 
-# Step 4: Real-time Face Expression Detection
 def real_time_expression_detection():
     model = tf.keras.models.load_model('expression_model.h5')
     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
@@ -63,12 +68,12 @@ def real_time_expression_detection():
             roi_gray = roi_gray / 255.0
             roi_gray = np.reshape(roi_gray, (1, 48, 48, 1))
             
-            # Predict emotion
+      
             emotion_prediction = model.predict(roi_gray)
             max_index = np.argmax(emotion_prediction)
             emotion_label = emotions[max_index]
             
-            # Display emotion and draw rectangle around the face
+            
             cv2.putText(frame, emotion_label, (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
         
@@ -80,12 +85,33 @@ def real_time_expression_detection():
     cap.release()
     cv2.destroyAllWindows()
 
-# Main Function: End-to-End Process
+
 if __name__ == "__main__":
-    # Create and train the model
+ 
     model = create_model()
     print("Training the model...")
     train_model(model)
     
     print("Training completed. Starting real-time expression detection...")
     real_time_expression_detection()
+
+
+#plot loss
+plt.plot(history.history["loss"])
+plt.plot(history.history["val_loss"])
+plt.title("Model Loss")
+plt.legend(["Train","Validation"],loc = "upper left")
+plt.subplots_adjust(top=1.0,bottom=0.0,right=0.95,hspace=0.25,wspace=0.35)
+
+#plot accuracy
+plt.plot(history.history["accuracy"])
+plt.plot(history.history["val_accuracy"])
+plt.title("Model Accuracy")
+plt.legend(["Train","Validation"],loc = "upper left")
+plt.subplots_adjust(top=1.0,bottom=0.0,right=0.95,hspace=0.25,wspace=0.35)
+
+
+#save the model
+model_json = model.to_json()
+with open("model_a.json","w") as json_file:
+    json_file.write(model_json)
