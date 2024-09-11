@@ -54,7 +54,7 @@ This project implements a real-time face expression recognition system using Con
 2. Train the model:
    - Run the script:
      ```
-     python face_expression_recognition.py
+     python face_recog.py
      ```
    - This will train the model and save it as 'expression_model.h5'
 
