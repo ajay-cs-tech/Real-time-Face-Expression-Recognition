@@ -21,7 +21,7 @@ This project implements a real-time face expression recognition system using Con
 
 1. Clone this repository:
    ```
-   git clone https://github.com/yourusername/face-expression-recognition.git
+   git clone https://github.com/ajay-cs-tech/Real-time Face Expression Recognition.git
    cd face-expression-recognition
    ```
 
